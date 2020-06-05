@@ -73,7 +73,7 @@ public abstract class AIState : MonoBehaviour
     |  Description : returns Sin angle between two vectors in Degrees         |
     ---------------------------------------------------------------------------
     */
-    public static float FindSinAngle(Vector3 from, Vector3 to)
+    public static float FindSinedAngle(Vector3 from, Vector3 to)
     {
         if (from == to) return 0.0f;
 

@@ -62,7 +62,6 @@ public class AIZombieState_Patrol01 : AIZombieState
     */
     public override AIStateType OnUpdateState()
     {
-        Debug.Log("visual threat type: " + _zombieStateMachine.VisualThreat.type);
         if (_zombieStateMachine == null) return AIStateType.Patrol;
         // Is the player visible
         if (_zombieStateMachine.VisualThreat.type == AITargetType.Visual_Player)

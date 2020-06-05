@@ -7,17 +7,22 @@ public class RootMotionConfigurator : AIStateMachineLink
     [SerializeField] int rootPosition = 0;
     [SerializeField] int rootRotation = 0;
 
+    bool _rootMotionProcessed = false;
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (stateMachine)
+        if (_stateMachine)
         {
-            stateMachine.AddRootMotionRequest(rootPosition, rootRotation);
+            _stateMachine.AddRootMotionRequest(rootPosition, rootRotation);
+            _rootMotionProcessed = true;
         }
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (stateMachine)
-            stateMachine.AddRootMotionRequest(-rootPosition, -rootRotation);
+        if (_stateMachine && _rootMotionProcessed)
+        {
+            _stateMachine.AddRootMotionRequest(-rootPosition, -rootRotation);
+            _rootMotionProcessed = false;
+        }
     }
 }

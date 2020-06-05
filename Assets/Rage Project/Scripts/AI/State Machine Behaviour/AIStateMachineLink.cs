@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AIStateMachineLink : StateMachineBehaviour
 {
-    protected AIStateMachine stateMachine;
-    public AIStateMachine StateMachine { set { stateMachine = value; } }
+    protected AIStateMachine _stateMachine;
+    public AIStateMachine stateMachine { set { _stateMachine = value; } }
 
 }

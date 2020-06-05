@@ -12,18 +12,21 @@ using UnityEngine.AI;
 public class AIZombieState_Pursuit01 : AIZombieState
 {
     //inspector assigned
-    [SerializeField] [Range(0, 10)] float _speed                    = 1.0f;
-    [SerializeField]                float _slerpSpeed               = 5.0f;
-    [SerializeField]                float _repathDistanceMultiplier = 0.035f;
-    [SerializeField]                float _repathVisualMinDuration  = 0.05f;
-    [SerializeField]                float _repathVisualMaxDuration  = 5.0f;
-    [SerializeField]                float _repathAudioMinDuration   = 0.05f;
-    [SerializeField]                float _repathAudioMaxDuration   = 5.0f;
-    [SerializeField]                float _maxDuration              = 40.0f;
+    [SerializeField] [Range(0, 10)]         float _speed                    = 1.0f;
+    [SerializeField] [Range(0.0f, 1.0f)]    float _lookAtWeight             = 0.7f;
+    [SerializeField] [Range(0.0f, 90.0f)]   float _lookAtAngleThreshold     = 15.0f;
+    [SerializeField]                        float _slerpSpeed               = 5.0f;
+    [SerializeField]                        float _repathDistanceMultiplier = 0.035f;
+    [SerializeField]                        float _repathVisualMinDuration  = 0.05f;
+    [SerializeField]                        float _repathVisualMaxDuration  = 5.0f;
+    [SerializeField]                        float _repathAudioMinDuration   = 0.05f;
+    [SerializeField]                        float _repathAudioMaxDuration   = 5.0f;
+    [SerializeField]                        float _maxDuration              = 40.0f;
 
     //private variables
-    float _timer         = 0.0f;
-    float _repathTimer   = 0.0f;
+    float _timer                = 0.0f;
+    float _repathTimer          = 0.0f;
+    float _currentLookAtWeight  = 0.0f;
     /*
     ---------------------------------------------------------------
     |  Name        : GetStateType                                 |
@@ -51,6 +54,7 @@ public class AIZombieState_Pursuit01 : AIZombieState
         _zombieStateMachine.feeding     = false;
         _zombieStateMachine.attackType  = 0;
 
+        _currentLookAtWeight = 0.0f;
         //zombie pursuit for a set timer before breaking off
         _timer          = 0.0f;
         _repathTimer    = 0.0f;
@@ -230,5 +234,21 @@ public class AIZombieState_Pursuit01 : AIZombieState
 
         //default
         return AIStateType.Pursuit;
+    }
+    public override void OnAnimatorIKUpdate()
+    {
+        if (_zombieStateMachine == null) return;
+
+        if (Vector3.Angle(_zombieStateMachine.transform.forward, _zombieStateMachine.targetPosition - _zombieStateMachine.transform.position) < _lookAtAngleThreshold)
+        {
+            _zombieStateMachine.animator.SetLookAtPosition(_zombieStateMachine.targetPosition + Vector3.up);
+            _currentLookAtWeight = Mathf.Lerp(_currentLookAtWeight, _lookAtWeight, Time.deltaTime);
+            _zombieStateMachine.animator.SetLookAtWeight(_currentLookAtWeight);
+        }
+        else
+        {
+            _currentLookAtWeight = Mathf.Lerp(_currentLookAtWeight, 0.0f, Time.deltaTime);
+            _zombieStateMachine.animator.SetLookAtWeight(_currentLookAtWeight);
+        }
     }
 }

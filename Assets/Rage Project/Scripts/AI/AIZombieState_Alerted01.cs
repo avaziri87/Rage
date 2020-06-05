@@ -92,7 +92,8 @@ public class AIZombieState_Alerted01 : AIZombieState
         }
 
         if(_zombieStateMachine.AudioThreat.type == AITargetType.None &&
-           _zombieStateMachine.VisualThreat.type == AITargetType.Visual_Food)
+           _zombieStateMachine.VisualThreat.type == AITargetType.Visual_Food &&
+           _zombieStateMachine.targetType == AITargetType.None)
         {
             _zombieStateMachine.SetTarget(_zombieStateMachine.VisualThreat);
             return AIStateType.Pursuit;
@@ -104,7 +105,7 @@ public class AIZombieState_Alerted01 : AIZombieState
            _zombieStateMachine.targetType == AITargetType.Visual_Lights) &&
            !_zombieStateMachine.isTargetReached)
         {
-            angle = AIState.FindSinAngle(_zombieStateMachine.transform.forward,
+            angle = AIState.FindSinedAngle(_zombieStateMachine.transform.forward,
                                          (_zombieStateMachine.targetPosition - _zombieStateMachine.transform.position));
             if(_zombieStateMachine.targetType == AITargetType.Audio && Mathf.Abs(angle) < _threatAngleThreshold)
             {
@@ -126,7 +127,7 @@ public class AIZombieState_Alerted01 : AIZombieState
         }
         else if(_zombieStateMachine.targetType == AITargetType.Waypoint && !_zombieStateMachine.navMeshAgent.pathPending)
         {
-            angle = AIState.FindSinAngle(_zombieStateMachine.transform.forward,
+            angle = AIState.FindSinedAngle(_zombieStateMachine.transform.forward,
                                          _zombieStateMachine.navMeshAgent.steeringTarget - _zombieStateMachine.transform.position);
             if (Mathf.Abs(angle) < _waypointAngleThreshold)
             {
@@ -135,6 +136,14 @@ public class AIZombieState_Alerted01 : AIZombieState
             if(_directionChangeTimer> _directionChangeTime)
             {
                 _zombieStateMachine.seeking = (int)Mathf.Sign(angle);
+                _directionChangeTimer = 0.0f;
+            }
+        }
+        else
+        {
+            if (_directionChangeTimer > _directionChangeTime)
+            {
+                _zombieStateMachine.seeking = (int)Mathf.Sign(Random.Range(-1.0f, 1.0f));
                 _directionChangeTimer = 0.0f;
             }
         }

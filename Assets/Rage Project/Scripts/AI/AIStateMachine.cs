@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public enum AIStateType     { None, Idle, Alerted, Patrol, Attack, Feeding, Pursuit, Dead}
 public enum AITargetType    { None, Waypoint, Visual_Player , Visual_Lights, Visual_Food, Audio}
 public enum AITriggerEventType { Enter, Stay, Exit}
+public enum AIBoneAlignmentType { XAxis, YAxis, ZAxis, XAxisInverted, YAxisInverted, ZAxisInverted}
 /*
  ---------------------------------------------------------------
  |  Class       : AITarget                                     |
@@ -40,8 +41,8 @@ public struct AITarget
         _type = AITargetType.None;
         _collider = null;
         _position = Vector3.zero;
-        _distance = 0.0f;
-        _time = Mathf.Infinity;
+        _time = 0.0f;
+        _distance = Mathf.Infinity;
     }
 }
 /*
@@ -63,16 +64,21 @@ public abstract class AIStateMachine : MonoBehaviour
     [SerializeField] protected AIWaypointNetwork    _waypointNetwork    = null;
     [SerializeField] protected bool                 _randomPatrol       = false;
     [SerializeField] protected int                  _currentWaypoint    = -1;
+    [SerializeField] protected Transform            _rootBone           = null;
+    [SerializeField] protected AIBoneAlignmentType  _rootBoneAlignment  = AIBoneAlignmentType.ZAxis;
 
     [SerializeField] [Range(0, 15)] protected float _stopingDistance = 1.0f;
 
     //Protected
-    protected AIState       _currentState                       = null;
-    protected Dictionary<AIStateType, AIState> _statesDicionary = new Dictionary<AIStateType, AIState>();
-    protected AITarget      _target                             = new AITarget();
-    protected int           _rootPositionRefCount               = 0;
-    protected int           _rootRotationRefCount               = 0;
-    protected bool          _isTargetReached                    = false;
+    protected AIState                          _currentState                       = null;
+    protected Dictionary<AIStateType, AIState> _statesDicionary                    = new Dictionary<AIStateType, AIState>();
+    protected AITarget                         _target                             = new AITarget();
+    protected int                              _rootPositionRefCount               = 0;
+    protected int                              _rootRotationRefCount               = 0;
+    protected bool                             _isTargetReached                    = false;
+    protected List<Rigidbody>                  _bodyParts                          = new List<Rigidbody>();
+    protected int                              _aiBodyPartLayer                    = -1;
+    protected bool                             _cinematicEnable                    = false;
 
     //Component Cache
     protected Animator      _animator                           = null;
@@ -89,6 +95,7 @@ public abstract class AIStateMachine : MonoBehaviour
     public AITargetType targetType      { get { return _target.type; } }
     public Vector3      targetPosition  { get { return _target.position; } }
     public bool         isTargetReached { get { return _isTargetReached; } }
+    public bool         cinematicEnable { get { return _cinematicEnable; } set { _cinematicEnable = value; } }
     public int          targetColliderID
     {
         get
@@ -134,11 +141,27 @@ public abstract class AIStateMachine : MonoBehaviour
         _animator = GetComponent<Animator>();
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _collider = GetComponent<Collider>();
+        _aiBodyPartLayer = LayerMask.NameToLayer("AI Body Part");
+        
         if(GameSceneManager.instance != null)
         {
             if (_collider) GameSceneManager.instance.RegisterAIStatemachine(_collider.GetInstanceID(), this);
             if (_sensorTrigger) GameSceneManager.instance.RegisterAIStatemachine(_sensorTrigger.GetInstanceID(), this);
         }
+
+        if (_rootBone != null)
+        {
+            Rigidbody[] bodies = _rootBone.GetComponentsInChildren<Rigidbody>();
+            foreach(Rigidbody bodyPart in bodies)
+            {
+                if(bodyPart != null && bodyPart.gameObject.layer == _aiBodyPartLayer)
+                {
+                    _bodyParts.Add(bodyPart);
+                    GameSceneManager.instance.RegisterAIStatemachine(bodyPart.GetInstanceID(), this);
+                }
+            }
+        }
+
 
     }
     /*
@@ -181,7 +204,7 @@ public abstract class AIStateMachine : MonoBehaviour
             AIStateMachineLink[] scripts = _animator.GetBehaviours<AIStateMachineLink>();
             foreach (AIStateMachineLink script in scripts)
             {
-                script.StateMachine = this;
+                script.stateMachine = this;
             }
         }
     }
@@ -457,5 +480,10 @@ public abstract class AIStateMachine : MonoBehaviour
     {
         _rootPositionRefCount += rootPos;
         _rootRotationRefCount += rootRot;
+    }
+
+    public virtual void TakeDamage(Vector3 position, Vector3 force, int damage, Rigidbody bodyPart, CharacterManager characterManager, int hitDirection=0)
+    {
+
     }
 }
