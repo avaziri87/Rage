@@ -35837,7 +35837,7 @@ MonoBehaviour:
   _randomPatrol: 0
   _currentWaypoint: -1
   _rootBone: {fileID: 3276873209316970992}
-  _rootBoneAlignment: 2
+  _rootBoneAlignment: 0
   _stopingDistance: 1
   _fov: 120
   _sight: 0.5
@@ -43086,7 +43086,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &3274778713064930240
 GameObject:
   m_ObjectHideFlags: 0
@@ -43390,11 +43390,11 @@ CharacterJoint:
   m_GameObject: {fileID: 3274893852596396324}
   m_ConnectedBody: {fileID: 3274391174040972357}
   m_Anchor: {x: 0, y: 0, z: 0}
-  m_Axis: {x: 0, y: 1, z: 0}
+  m_Axis: {x: 0, y: 0, z: -1}
   m_AutoConfigureConnectedAnchor: 1
   m_ConnectedAnchor: {x: -0.28183725, y: 0.036006153, z: 0}
   serializedVersion: 2
-  m_SwingAxis: {x: 0, y: 1, z: 0}
+  m_SwingAxis: {x: 0, y: 0, z: -1}
   m_TwistLimitSpring:
     spring: 0
     damper: 0
