@@ -17,9 +17,10 @@ public class AIZombieState_Feeding01 : AIZombieState
     [SerializeField] [Range(1, 100)]    int         _bloodParticlesBurstAmount  = 10;
 
     //private
-    int     _eatingStateHas     = Animator.StringToHash("Feeding State");
-    int     _eatingLayerIndex   = -1;
-    float   _bloodTimer         = 0.0f;
+    int     _eatingStateHas         = Animator.StringToHash("Feeding State");
+    int     _crawlEatingStateHas    = Animator.StringToHash("Crawl Feeding State");
+    int     _eatingLayerIndex       = -1;
+    float   _bloodTimer             = 0.0f;
 
     public override AIStateType GetStateType() { return AIStateType.Feeding; }
     /*
@@ -90,7 +91,8 @@ public class AIZombieState_Feeding01 : AIZombieState
         }
 
         //if feeding animation playing now
-        if(_zombieStateMachine.animator.GetCurrentAnimatorStateInfo(_eatingLayerIndex).shortNameHash==_eatingStateHas)
+        int currentHash = _zombieStateMachine.animator.GetCurrentAnimatorStateInfo(_eatingLayerIndex).shortNameHash;
+        if (currentHash == _eatingStateHas || currentHash == _crawlEatingStateHas)
         {
             _zombieStateMachine.satisfaction = Mathf.Min(_zombieStateMachine.satisfaction + (Time.deltaTime*_zombieStateMachine.replenishRate)/100, 1.0f);
             if(GameSceneManager.instance && GameSceneManager.instance.bloodParticle &&_bloodPSMount)
@@ -115,6 +117,11 @@ public class AIZombieState_Feeding01 : AIZombieState
             Quaternion newRot = Quaternion.LookRotation(targerPos - _zombieStateMachine.transform.position);
             _zombieStateMachine.transform.rotation = Quaternion.Slerp(_zombieStateMachine.transform.rotation, newRot, Time.deltaTime * _slerpSpeed);
         }
+
+        Vector3 headToTarget = _zombieStateMachine.targetPosition - _zombieStateMachine.animator.GetBoneTransform(HumanBodyBones.Head).position;
+        _zombieStateMachine.transform.position = Vector3.Lerp(transform.position, transform.position + headToTarget, Time.deltaTime);
+
+
         //stay feeding
         return AIStateType.Feeding;
     }

@@ -9772,7 +9772,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 815394717}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.4, z: 0}
+  m_LocalPosition: {x: 0, y: 0.665, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1167901078}
@@ -34535,6 +34535,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1274414614}
   - component: {fileID: 1274414616}
+  - component: {fileID: 1274414615}
   m_Layer: 10
   m_Name: Mouth Trigger
   m_TagString: Untagged
@@ -34556,6 +34557,20 @@ Transform:
   m_Father: {fileID: 3276704094982834976}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 10.331, y: 0, z: 0}
+--- !u!136 &1274414615
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1274414613}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 0.08
+  m_Height: 0.45
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 0.25}
 --- !u!114 &1274414616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35830,7 +35845,7 @@ MonoBehaviour:
   _aggression: 0.5
   _health: 100
   _upperBodyDamage: 0
-  _lowerBodyDamage: 0
+  _lowerBodyDamage: 90
   _upperBodyThreshold: 30
   _limpThreshold: 30
   _crawlThreshold: 90
@@ -35887,6 +35902,7 @@ MonoBehaviour:
   _waypointAngleThreshold: 35
   _threatAngleThreshold: 10
   _directionChangeTime: 1.5
+  _slerpSpeed: 45
 --- !u!114 &1379516615991124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42522,6 +42538,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3276897516244744502}
   - component: {fileID: 3274335775041161006}
+  - component: {fileID: 3274335775041161005}
   m_Layer: 10
   m_Name: Hand_R
   m_TagString: Untagged
@@ -42529,6 +42546,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!135 &3274335775041161005
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3274335775041161004}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.18
+  m_Center: {x: 0.12, y: 0, z: 0}
 --- !u!114 &3274335775041161006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42845,6 +42875,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3276680715888280340}
   - component: {fileID: 3274694788072805086}
+  - component: {fileID: 3274694788072805085}
   m_Layer: 10
   m_Name: Hand_L
   m_TagString: Untagged
@@ -42852,6 +42883,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!135 &3274694788072805085
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3274694788072805084}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.18
+  m_Center: {x: -0.12, y: 0, z: 0}
 --- !u!114 &3274694788072805086
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43042,7 +43086,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &3274778713064930240
 GameObject:
   m_ObjectHideFlags: 0
@@ -43346,7 +43390,7 @@ CharacterJoint:
   m_GameObject: {fileID: 3274893852596396324}
   m_ConnectedBody: {fileID: 3274391174040972357}
   m_Anchor: {x: 0, y: 0, z: 0}
-  m_Axis: {x: 0, y: 0, z: -1}
+  m_Axis: {x: 0, y: 1, z: 0}
   m_AutoConfigureConnectedAnchor: 1
   m_ConnectedAnchor: {x: -0.28183725, y: 0.036006153, z: 0}
   serializedVersion: 2

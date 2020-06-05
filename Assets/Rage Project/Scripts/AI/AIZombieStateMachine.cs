@@ -60,17 +60,18 @@ public class AIZombieStateMachine : AIStateMachine
 
     //Animator Hash
     #region
-    int _speedHash          = Animator.StringToHash("Speed");
-    int _feedingHash        = Animator.StringToHash("Feeding");
-    int _seekingHash        = Animator.StringToHash("Seeking");
-    int _attackHash         = Animator.StringToHash("Attack");
-    int _crawlingHash       = Animator.StringToHash("Crawling");
-    int _hitTriggergHash    = Animator.StringToHash("Hit");
-    int _hitTypeHash        = Animator.StringToHash("Hit Type");
-    int _reanimatedFromBackHash = Animator.StringToHash("Reanimate From Back");
-    int _reanimatedFromFrontHash = Animator.StringToHash("Reanimate From Front");
-    int _lowerBodyDamageHash = Animator.StringToHash("Lower Body Damage");
-    int _upperBodyDamageHash = Animator.StringToHash("Upper Body Damage");
+    int _speedHash                  = Animator.StringToHash("Speed");
+    int _feedingHash                = Animator.StringToHash("Feeding");
+    int _seekingHash                = Animator.StringToHash("Seeking");
+    int _attackHash                 = Animator.StringToHash("Attack");
+    int _crawlingHash               = Animator.StringToHash("Crawling");
+    int _hitTriggergHash            = Animator.StringToHash("Hit");
+    int _hitTypeHash                = Animator.StringToHash("Hit Type");
+    int _reanimatedFromBackHash     = Animator.StringToHash("Reanimate From Back");
+    int _reanimatedFromFrontHash    = Animator.StringToHash("Reanimate From Front");
+    int _lowerBodyDamageHash        = Animator.StringToHash("Lower Body Damage");
+    int _upperBodyDamageHash        = Animator.StringToHash("Upper Body Damage");
+    int _stateHash                  = Animator.StringToHash("State");
     #endregion
 
     //Public Properties
@@ -123,6 +124,7 @@ public class AIZombieStateMachine : AIStateMachine
             _animator.SetBool   (_feedingHash, _feeding);
             _animator.SetInteger(_seekingHash, _seeking);
             _animator.SetInteger(_attackHash,  _attackType);
+            _animator.SetInteger(_stateHash, (int)_currentStateType);
         }
 
         _satisfaction = Mathf.Max(0, _satisfaction -((_depletionRate * Time.deltaTime)/100)*Mathf.Pow(_speed,3));
@@ -388,6 +390,8 @@ public class AIZombieStateMachine : AIStateMachine
                 }
 
                 NavMeshHit navMeshHit;
+                Vector3 baseOffset = Vector3.zero;
+                if (_navMeshAgent) baseOffset.y = _navMeshAgent.baseOffset;
                 if (NavMesh.SamplePosition(newRootPosition, out navMeshHit, 25.0f, NavMesh.AllAreas))
                 {
                     transform.position = navMeshHit.position;
