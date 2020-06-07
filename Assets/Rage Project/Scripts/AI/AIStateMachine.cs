@@ -208,6 +208,17 @@ public abstract class AIStateMachine : MonoBehaviour
             }
         }
     }
+    public void SetStateOverride(AIStateType state)
+    {
+        if(_statesDicionary.ContainsKey(state) && state != _currentStateType)
+        {                
+            if(_currentState != null) _currentState.OnExitState();
+
+            _currentState = _statesDicionary[state];
+            _currentStateType = state;
+            _currentState.OnEnterState();
+        }
+    }
     public Vector3 GetWaypointPosition(bool increment)
     {
         if(_currentWaypoint ==-1)

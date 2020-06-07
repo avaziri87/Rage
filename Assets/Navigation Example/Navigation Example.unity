@@ -35318,6 +35318,8 @@ MonoBehaviour:
   _cameraBloodEffect: {fileID: 815394718}
   _camera: {fileID: 814078287}
   _health: 100
+  _weaponDamage: 10
+  _weaponForce: 35
 --- !u!64 &1602914362
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -35845,7 +35847,7 @@ MonoBehaviour:
   _aggression: 0.5
   _health: 100
   _upperBodyDamage: 0
-  _lowerBodyDamage: 90
+  _lowerBodyDamage: 50
   _upperBodyThreshold: 30
   _limpThreshold: 30
   _crawlThreshold: 90
@@ -35977,7 +35979,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4398537246758321
 Transform:
   m_ObjectHideFlags: 0

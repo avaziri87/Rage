@@ -10,6 +10,13 @@ public class CharacterManager : MonoBehaviour
     [SerializeField] CameraBloodEffect  _cameraBloodEffect  = null;
     [SerializeField] Camera             _camera             = null;
     [SerializeField] float              _health             = 100f;
+    [SerializeField] int                _weaponDamage       = 10;
+    [SerializeField] float              _weaponForce        = 35.0f;
+    [SerializeField] AISoundEmitter     _soundEmitter       = null;
+    [SerializeField] float              _walkRadius         = 0.0f;
+    [SerializeField] float              _runRadius          = 7.0f;
+    [SerializeField] float              _landingRadius      = 12.0f;
+    [SerializeField] float              _bloodRadiusScale   = 6.0f;
 
     //private
     Collider            _collider               = null;
@@ -42,6 +49,25 @@ public class CharacterManager : MonoBehaviour
         {
             DoDamage(0);
         }
+
+        if(_fpsController != null || _soundEmitter != null)
+        {
+            float newRadius = Mathf.Max(_walkRadius, (100 - _health)/ _bloodRadiusScale);
+
+            switch(_fpsController.moveStatus)
+            {
+                case PlayerMoveStatus.Landing: 
+                    newRadius = Mathf.Max(newRadius, _landingRadius); 
+                    break;
+                case PlayerMoveStatus.Running:
+                    newRadius = Mathf.Max(newRadius, _runRadius);
+                    break;
+                default:
+                    break;
+            }
+            _soundEmitter.SetRadius(newRadius);
+            _fpsController.dragMultiplierLimit = Mathf.Max(_health / 100.0f, 0.25f);
+        }
     }
 
     private void DoDamage(int hitDirection = 0)
@@ -59,7 +85,7 @@ public class CharacterManager : MonoBehaviour
             AIStateMachine stateMachine = _gameSceneManager.GetAIStateMachine(hit.rigidbody.GetInstanceID());
             if(stateMachine)
             {
-                stateMachine.TakeDamage(hit.point, ray.direction * 35.0f, 75, hit.rigidbody, this, 0);
+                stateMachine.TakeDamage(hit.point, ray.direction * _weaponForce, _weaponDamage, hit.rigidbody, this, 0);
             }
         }
     }
@@ -67,6 +93,11 @@ public class CharacterManager : MonoBehaviour
     public void TakeDamage(float damageAmount)
     {
         _health = Mathf.Max(0, _health - damageAmount*Time.deltaTime);
+        if(_fpsController)
+        {
+            _fpsController.dragMultiplier = 0.0f;
+        }
+
         if(_cameraBloodEffect != null)
         {
             _cameraBloodEffect.minBloodAmount = (1.0f - _health / 100.0f);

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public enum PlayerMoveStatus { NotMoving, Crouchin, Walking, Running, NotGrounded, Landing }
+public enum PlayerMoveStatus { NotMoving, Crouching, Walking, Running, NotGrounded, Landing }
 public enum CurveControlledBobCallbackType { Horizontal, Vertical}
 
 public delegate void CurvedControlledBobCallback();
@@ -126,11 +126,27 @@ public class FPSController : MonoBehaviour
     float       _controllerHeight       = 0.0f;
 
     CharacterController _characterController = null;
-    [SerializeField]PlayerMoveStatus _moveStatus = PlayerMoveStatus.NotMoving;
+    PlayerMoveStatus _moveStatus = PlayerMoveStatus.NotMoving;
 
-    public PlayerMoveStatus moveStatus { get { return _moveStatus; } }
-    public float walkSpeed { get { return _walkSpeed; } }
-    public float runSpeed { get { return _runSpeed; } }
+    public PlayerMoveStatus moveStatus              { get { return _moveStatus; } }
+    public float walkSpeed                          { get { return _walkSpeed; } }
+    public float runSpeed                           { get { return _runSpeed; } }
+    public CharacterController characterController  { get { return _characterController; } }
+
+    float _dragMultiplier        = 1.0f;
+    float _dragMultiplierLimit   = 1.0f;
+    [SerializeField] [Range(0.0f, 1.0f)] float _npcStikiness = 0.5f;
+
+    public float dragMultiplierLimit
+    {
+        get { return _dragMultiplierLimit; }
+        set { _dragMultiplierLimit = Mathf.Clamp01(value); }
+    }
+    public float dragMultiplier
+    {
+        get { return _dragMultiplier; }
+        set { _dragMultiplier = Mathf.Min(value, _dragMultiplierLimit); }
+    }
 
     protected void Start()
     {
@@ -183,13 +199,13 @@ public class FPSController : MonoBehaviour
         {
             _moveStatus = PlayerMoveStatus.NotGrounded;
         }
-        else if (_characterController.velocity.sqrMagnitude > 0.01f)
+        else if (_characterController.velocity.sqrMagnitude < 0.01f)
         {
             _moveStatus = PlayerMoveStatus.NotMoving;
         }
         else if(_isCrounching)
         {
-            _moveStatus = PlayerMoveStatus.Crouchin;
+            _moveStatus = PlayerMoveStatus.Crouching;
         }
         else if (_isWalking)
         {
@@ -201,6 +217,7 @@ public class FPSController : MonoBehaviour
         }
 
         _previouslyGrounded = _characterController.isGrounded;
+        _dragMultiplier = Mathf.Min(_dragMultiplier + Time.deltaTime, _dragMultiplierLimit);
     }
     private void FixedUpdate()
     {
@@ -226,8 +243,8 @@ public class FPSController : MonoBehaviour
         }
 
         //scale movement by our current speed (walking value or running vlaue)
-        _moveDirection.x = desiredMove.x * speed;
-        _moveDirection.z = desiredMove.z * speed;
+        _moveDirection.x = desiredMove.x * speed * _dragMultiplier;
+        _moveDirection.z = desiredMove.z * speed * _dragMultiplier;
 
         //if grounded
         if(_characterController.isGrounded)
@@ -268,5 +285,10 @@ public class FPSController : MonoBehaviour
             return;
         audioSources[_audioActive].Play();
         _audioActive = (_audioActive == 0) ? 1 : 0;
+    }
+
+    public void DoStickiness()
+    {
+            _dragMultiplier = 1.0f - _npcStikiness;
     }
 }

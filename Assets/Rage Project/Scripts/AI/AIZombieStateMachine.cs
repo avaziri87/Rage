@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 public enum AIBoneControlType { Animated, Ragdoll, RagdollToAnim}
+public enum AIScreamPosition { Entity, Player}
 public class BodyPartSnapshot
 {
     public Transform transform;
@@ -20,81 +21,98 @@ public class AIZombieStateMachine : AIStateMachine
 {
     //Inspector Assigned
     #region
-    [SerializeField] [Range(10.0f, 360.0f)] float       _fov                    = 50.0f;
-    [SerializeField] [Range(0.0f, 1.0f)]    float       _sight                  = 0.5f;
-    [SerializeField] [Range(0.0f, 1.0f)]    float       _hearing                = 1.0f;
-    [SerializeField] [Range(0.0f, 1.0f)]    float       _aggression             = 0.5f;
-    [SerializeField] [Range(0, 100)]        int         _health                 = 100;
-    [SerializeField] [Range(0, 100)]        int         _upperBodyDamage        = 0;
-    [SerializeField] [Range(0, 100)]        int         _lowerBodyDamage        = 0;
-    [SerializeField] [Range(0, 100)]        int         _upperBodyThreshold     = 30;
-    [SerializeField] [Range(0, 100)]        int         _limpThreshold          = 30;
-    [SerializeField] [Range(0, 100)]        int         _crawlThreshold         = 90;
-    [SerializeField] [Range(0.0f, 1.0f)]    float       _intelligence           = 0.5f;
-    [SerializeField] [Range(0.0f, 1.0f)]    float       _satisfaction           = 1.0f;
-    [SerializeField]                        float       _replenishRate          = 0.5f;
-    [SerializeField]                        float       _depletionRate          = 0.1f;
-    [SerializeField]                        float       _reanimationBlendTime   = 0.5f;
-    [SerializeField]                        float       _reanimationWaitTime    = 3.0f;
-    [SerializeField]                        LayerMask   _geometryLayers         = 0;
+    [SerializeField] [Range(10.0f, 360.0f)]     float               _fov                    = 50.0f;
+    [SerializeField] [Range(0.0f, 1.0f)]        float               _sight                  = 0.5f;
+    [SerializeField] [Range(0.0f, 1.0f)]        float               _hearing                = 1.0f;
+    [SerializeField] [Range(0.0f, 1.0f)]        float               _aggression             = 0.5f;
+    [SerializeField] [Range(0, 100)]            int                 _health                 = 100;
+    [SerializeField] [Range(0, 100)]            int                 _upperBodyDamage        = 0;
+    [SerializeField] [Range(0, 100)]            int                 _lowerBodyDamage        = 0;
+    [SerializeField] [Range(0, 100)]            int                 _upperBodyThreshold     = 30;
+    [SerializeField] [Range(0, 100)]            int                 _limpThreshold          = 30;
+    [SerializeField] [Range(0, 100)]            int                 _crawlThreshold         = 90;
+    [SerializeField] [Range(0.0f, 1.0f)]        float               _intelligence           = 0.5f;
+    [SerializeField] [Range(0.0f, 1.0f)]        float               _satisfaction           = 1.0f;
+    [SerializeField]                            float               _replenishRate          = 0.5f;
+    [SerializeField] [Range(0.0f, 1.0f)]        float               _screamChance           = 1.0f;
+    [SerializeField] [Range(0.0f, 50.0f)]       float               _screamRadius           = 20.0f;
+    [SerializeField]                            AIScreamPosition    _screamPosition         = AIScreamPosition.Player;
+    [SerializeField]                            AISoundEmitter      _screamPrefab           = null;
+    [SerializeField]                            float               _depletionRate          = 0.1f;
+    [SerializeField]                            float               _reanimationBlendTime   = 0.5f;
+    [SerializeField]                            float               _reanimationWaitTime    = 3.0f;
+    [SerializeField]                            LayerMask           _geometryLayers         = 0;
     #endregion
 
     //Private
     #region
-    int     _seeking    = 0;
-    bool    _feeding    = false;
-    bool    _crawling   = false;
-    int     _attackType = 0;
-    float   _speed      = 0.0f;
+    int _seeking = 0;
+    bool _feeding = false;
+    bool _crawling = false;
+    int _attackType = 0;
+    float _speed = 0.0f;
+    float _isScreaming = 0.0f;
+
 
     //Ragdoll
-    AIBoneControlType       _boneControlType        = AIBoneControlType.Animated;
-    List<BodyPartSnapshot>  _bodyPartSnapshots      = new List<BodyPartSnapshot>();
-    float                   _ragdollEndTime         = float.MinValue;
-    Vector3                 _ragdollHipPosition;
-    Vector3                 _ragdollFeetPosition;
-    Vector3                 _ragdollHeadPosition;
-    IEnumerator             _reanimationCoroutine   = null;
-    float                   _mechanimTransitiontime = 0.1f;
+    AIBoneControlType _boneControlType = AIBoneControlType.Animated;
+    List<BodyPartSnapshot> _bodyPartSnapshots = new List<BodyPartSnapshot>();
+    float _ragdollEndTime = float.MinValue;
+    Vector3 _ragdollHipPosition;
+    Vector3 _ragdollFeetPosition;
+    Vector3 _ragdollHeadPosition;
+    IEnumerator _reanimationCoroutine = null;
+    float _mechanimTransitiontime = 0.1f;
     #endregion
 
     //Animator Hash
     #region
-    int _speedHash                  = Animator.StringToHash("Speed");
-    int _feedingHash                = Animator.StringToHash("Feeding");
-    int _seekingHash                = Animator.StringToHash("Seeking");
-    int _attackHash                 = Animator.StringToHash("Attack");
-    int _crawlingHash               = Animator.StringToHash("Crawling");
-    int _hitTriggergHash            = Animator.StringToHash("Hit");
-    int _hitTypeHash                = Animator.StringToHash("Hit Type");
-    int _reanimatedFromBackHash     = Animator.StringToHash("Reanimate From Back");
-    int _reanimatedFromFrontHash    = Animator.StringToHash("Reanimate From Front");
-    int _lowerBodyDamageHash        = Animator.StringToHash("Lower Body Damage");
-    int _upperBodyDamageHash        = Animator.StringToHash("Upper Body Damage");
-    int _stateHash                  = Animator.StringToHash("State");
+    int _speedHash = Animator.StringToHash("Speed");
+    int _feedingHash = Animator.StringToHash("Feeding");
+    int _seekingHash = Animator.StringToHash("Seeking");
+    int _attackHash = Animator.StringToHash("Attack");
+    int _crawlingHash = Animator.StringToHash("Crawling");
+    int _screamingHash = Animator.StringToHash("Screaming");
+    int _screamHash = Animator.StringToHash("Scream");
+    int _hitTriggergHash = Animator.StringToHash("Hit");
+    int _hitTypeHash = Animator.StringToHash("Hit Type");
+    int _reanimatedFromBackHash = Animator.StringToHash("Reanimate From Back");
+    int _reanimatedFromFrontHash = Animator.StringToHash("Reanimate From Front");
+    int _lowerBodyDamageHash = Animator.StringToHash("Lower Body Damage");
+    int _upperBodyDamageHash = Animator.StringToHash("Upper Body Damage");
+    int _stateHash = Animator.StringToHash("State");
+    int _upperBodyLayer = -1;
+    int _lowerBodyLayer = -1;
     #endregion
 
     //Public Properties
     #region
-    public float    fov           { get { return _fov; } }
-    public float    hearing       { get { return _hearing; } }
-    public float    sight         { get { return _sight; } }
-    public bool     crawling      { get { return _crawling; } }
-    public float    intelligence  { get { return _intelligence; } }
-    public float    satisfaction  { get { return _satisfaction; } set { _satisfaction = value; } }
-    public float    aggression    { get { return _aggression; }   set { _aggression = value; } }
-    public int      health        { get { return _health; }       set { _health = value; } }
-    public int      attackType    { get { return _attackType; }   set { _attackType = value; } }
-    public bool     feeding       { get { return _feeding; }      set { _feeding = value; } }
-    public int      seeking       { get { return _seeking; }      set { _seeking = value; } }
-    public float    speed         { get { return _speed; }        set { _speed = value; } }
-    public float    replenishRate { get { return _replenishRate; } }
-    public bool     isCrawling    { get { return (_lowerBodyDamage >= _crawlThreshold); } }
+    public float fov { get { return _fov; } }
+    public float hearing { get { return _hearing; } }
+    public float sight { get { return _sight; } }
+    public bool crawling { get { return _crawling; } }
+    public float intelligence { get { return _intelligence; } }
+    public float satisfaction { get { return _satisfaction; } set { _satisfaction = value; } }
+    public float aggression { get { return _aggression; } set { _aggression = value; } }
+    public int health { get { return _health; } set { _health = value; } }
+    public int attackType { get { return _attackType; } set { _attackType = value; } }
+    public bool feeding { get { return _feeding; } set { _feeding = value; } }
+    public int seeking { get { return _seeking; } set { _seeking = value; } }
+    public float speed { get { return _speed; } set { _speed = value; } }
+    public float replenishRate { get { return _replenishRate; } }
+    public bool isCrawling { get { return (_lowerBodyDamage >= _crawlThreshold); } }
+    public bool isScreaming { get { return _isScreaming > 0.1f; } }
+    public float ScreamChance { get{ return _screamChance; }
+    }
     #endregion
     protected override void Start()
     {
         base.Start();
-
+        if(_animator != null)
+        {
+            _lowerBodyLayer = _animator.GetLayerIndex("Lower Body");
+            _upperBodyLayer = _animator.GetLayerIndex("Upper Body");
+        }
         if(_rootBone != null)
         {
             Transform[] transforms = _rootBone.GetComponentsInChildren<Transform>();
@@ -125,14 +143,36 @@ public class AIZombieStateMachine : AIStateMachine
             _animator.SetInteger(_seekingHash, _seeking);
             _animator.SetInteger(_attackHash,  _attackType);
             _animator.SetInteger(_stateHash, (int)_currentStateType);
+
+            _isScreaming = _cinematicEnable ? 0.0f : _animator.GetFloat(_screamHash);
         }
 
         _satisfaction = Mathf.Max(0, _satisfaction -((_depletionRate * Time.deltaTime)/100)*Mathf.Pow(_speed,3));
+    }
+    public bool Scream()
+    {
+        if (isScreaming) return true;
+        if (_animator == null || _cinematicEnable || _screamPrefab == null) return false;
+
+        _animator.SetTrigger(_screamHash);
+        Vector3 spawnPos = _screamPosition == AIScreamPosition.Entity ? transform.position : VisualThreat.position;
+        AISoundEmitter screamEmitter = Instantiate(_screamPrefab, spawnPos, Quaternion.identity) as AISoundEmitter;
+
+        if (screamEmitter != null) screamEmitter.SetRadius(_screamRadius);
+        return true;
     }
     protected void UpdateAnimatorDamage()
     {
         if(_animator != null)
         {
+            if(_lowerBodyLayer != -1)
+            {
+                _animator.SetLayerWeight(_lowerBodyLayer,(_lowerBodyDamage > _limpThreshold && _lowerBodyDamage < _crawlThreshold)? 1.0f:0.0f);
+            }
+            if (_upperBodyLayer != -1)
+            {
+                _animator.SetLayerWeight(_upperBodyLayer, (_upperBodyDamage > _upperBodyThreshold && _lowerBodyDamage < _crawlThreshold) ? 1.0f : 0.0f);
+            }
             _animator.SetBool(_crawlingHash, isCrawling);
             _animator.SetInteger(_upperBodyDamageHash, _upperBodyDamage);
             _animator.SetInteger(_lowerBodyDamageHash, _lowerBodyDamage);
