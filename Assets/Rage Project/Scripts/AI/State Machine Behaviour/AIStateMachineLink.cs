@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+public enum ComChannelName { ComChannel1, ComChannel2, ComChannel3, ComChannel4};
 public class AIStateMachineLink : StateMachineBehaviour
 {
     protected AIStateMachine _stateMachine;

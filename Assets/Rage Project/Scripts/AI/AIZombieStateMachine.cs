@@ -144,7 +144,7 @@ public class AIZombieStateMachine : AIStateMachine
             _animator.SetInteger(_attackHash,  _attackType);
             _animator.SetInteger(_stateHash, (int)_currentStateType);
 
-            _isScreaming = _cinematicEnable ? 0.0f : _animator.GetFloat(_screamHash);
+            _isScreaming = IsLayerActive("Cinematic") ? 0.0f : _animator.GetFloat(_screamHash);
         }
 
         _satisfaction = Mathf.Max(0, _satisfaction -((_depletionRate * Time.deltaTime)/100)*Mathf.Pow(_speed,3));
@@ -152,7 +152,7 @@ public class AIZombieStateMachine : AIStateMachine
     public bool Scream()
     {
         if (isScreaming) return true;
-        if (_animator == null || _cinematicEnable || _screamPrefab == null) return false;
+        if (_animator == null || IsLayerActive("Cinematic") || _screamPrefab == null) return false;
 
         _animator.SetTrigger(_screamHash);
         Vector3 spawnPos = _screamPosition == AIScreamPosition.Entity ? transform.position : VisualThreat.position;
@@ -176,6 +176,12 @@ public class AIZombieStateMachine : AIStateMachine
             _animator.SetBool(_crawlingHash, isCrawling);
             _animator.SetInteger(_upperBodyDamageHash, _upperBodyDamage);
             _animator.SetInteger(_lowerBodyDamageHash, _lowerBodyDamage);
+
+            if (_lowerBodyDamage > _limpThreshold && _lowerBodyDamage < _crawlThreshold) SetLayerActive("Lower Body", true);
+            else SetLayerActive("Lower Body", false);
+
+            if (_upperBodyDamage > _upperBodyThreshold && _lowerBodyDamage < _crawlThreshold) SetLayerActive("Upper Body", true);
+            else SetLayerActive("Upper Body", false);
         }
     }
     public override void TakeDamage(Vector3 position, Vector3 force, int damage, Rigidbody bodyPart, CharacterManager characterManager, int hitDirection = 0)
@@ -252,7 +258,8 @@ public class AIZombieStateMachine : AIStateMachine
             }
         }
 
-        if (_boneControlType != AIBoneControlType.Animated || isCrawling || cinematicEnable || attackerLocaPos.z < 0) shouldRagdoll = true;
+        if (_boneControlType != AIBoneControlType.Animated || isCrawling || IsLayerActive("Cinematic") || attackerLocaPos.z < 0) shouldRagdoll = true;
+        
         if(!shouldRagdoll)
         {
             float angle = 0.0f;
@@ -295,6 +302,8 @@ public class AIZombieStateMachine : AIStateMachine
             if (_navMeshAgent) _navMeshAgent.enabled = false;
             if (_animator) _animator.enabled = false;
             if (_collider) _collider.enabled = false;
+
+            if (_layeredAudioSource != null) _layeredAudioSource.Mute(true);
 
             inMeleeRange = false;
 

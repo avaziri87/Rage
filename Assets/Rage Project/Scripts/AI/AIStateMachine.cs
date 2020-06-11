@@ -78,7 +78,11 @@ public abstract class AIStateMachine : MonoBehaviour
     protected bool                             _isTargetReached                    = false;
     protected List<Rigidbody>                  _bodyParts                          = new List<Rigidbody>();
     protected int                              _aiBodyPartLayer                    = -1;
-    protected bool                             _cinematicEnable                    = false;
+
+    protected ILayeredAudioSource              _layeredAudioSource                 = null;
+
+    protected Dictionary<string, bool> _animLayersActive = new Dictionary<string, bool>();
+
 
     //Component Cache
     protected Animator      _animator                           = null;
@@ -95,7 +99,6 @@ public abstract class AIStateMachine : MonoBehaviour
     public AITargetType targetType      { get { return _target.type; } }
     public Vector3      targetPosition  { get { return _target.position; } }
     public bool         isTargetReached { get { return _isTargetReached; } }
-    public bool         cinematicEnable { get { return _cinematicEnable; } set { _cinematicEnable = value; } }
     public int          targetColliderID
     {
         get
@@ -129,6 +132,42 @@ public abstract class AIStateMachine : MonoBehaviour
             return radius;
         }
     }
+    public void SetLayerActive(string layerName, bool active)
+    {
+        _animLayersActive[layerName] = active;
+        if(active == false && _layeredAudioSource != null)
+        {
+            _layeredAudioSource.Stop(_animator.GetLayerIndex(layerName));
+        }
+    }
+    public bool IsLayerActive(string layerName)
+    {
+        bool result;
+        if(_animLayersActive.TryGetValue(layerName, out result))
+        {
+            return result;
+        }
+        return false;
+    }
+
+    public bool PlayAudio(AudioCollection clipPool, int bank, int layer, bool looping = true)
+    {
+        if (_layeredAudioSource == null) return false;
+
+        return _layeredAudioSource.Play(clipPool, bank, layer, looping);
+    }
+
+    public void StopAudio(int layer)
+    {
+        if (_layeredAudioSource != null)
+            _layeredAudioSource.Stop(layer);
+    }
+
+    public void MuteAudio(bool mute)
+    {
+        if (_layeredAudioSource != null)
+            _layeredAudioSource.Mute(mute);
+    }
     /*
     ----------------------------------------------------------------
     |  Name        : Awake                                         |
@@ -142,6 +181,8 @@ public abstract class AIStateMachine : MonoBehaviour
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _collider = GetComponent<Collider>();
         _aiBodyPartLayer = LayerMask.NameToLayer("AI Body Part");
+
+        AudioSource audioSource = GetComponent<AudioSource>();
         
         if(GameSceneManager.instance != null)
         {
@@ -162,7 +203,10 @@ public abstract class AIStateMachine : MonoBehaviour
             }
         }
 
-
+        if(_animator && audioSource && AudioManager.instance)
+        {
+            _layeredAudioSource = AudioManager.instance.RegisterLayeredAudioSource(audioSource, _animator.layerCount);
+        }
     }
     /*
     ----------------------------------------------------------------
@@ -496,5 +540,13 @@ public abstract class AIStateMachine : MonoBehaviour
     public virtual void TakeDamage(Vector3 position, Vector3 force, int damage, Rigidbody bodyPart, CharacterManager characterManager, int hitDirection=0)
     {
 
+    }
+
+    protected virtual void OnDestroy()
+    {
+        if(_layeredAudioSource != null && AudioManager.instance)
+        {
+            AudioManager.instance.UnregisterLayerdAudioSource(_layeredAudioSource);
+        }
     }
 }

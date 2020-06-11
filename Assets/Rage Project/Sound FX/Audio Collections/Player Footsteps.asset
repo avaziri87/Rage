@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d98550b45058d9546a8078acb2cdee9b, type: 3}
+  m_Name: Player Footsteps
+  m_EditorClassIdentifier: 
+  _audioGroup: Player
+  _volume: 0.2
+  _spatialBlend: 1
+  _priority: 256
+  _audioClipBanks:
+  - Clips:
+    - {fileID: 8300000, guid: 873cd0ed1685f7d4a84120acb31440e7, type: 3}
+    - {fileID: 8300000, guid: 11e779b682cd055419d7e945d082c4bd, type: 3}
+    - {fileID: 8300000, guid: 866e8ce13819d0a4b81de3c7dd89a47f, type: 3}
+    - {fileID: 8300000, guid: ea1471c8e92450b438602a247687e2f8, type: 3}
+    - {fileID: 8300000, guid: 6a78e2047d6c19f4da89f5b4611920b1, type: 3}
+    - {fileID: 8300000, guid: 69d52132de0c2bd4bbadb50101033ba7, type: 3}
+    - {fileID: 8300000, guid: 75ec3005809e8ac48ba25137ebdfbdab, type: 3}
+    - {fileID: 8300000, guid: 2f61503b91fba7649b2a82795a8953b1, type: 3}
+    - {fileID: 8300000, guid: 463c6f59dd898df4e96665fb7616f368, type: 3}
+    - {fileID: 8300000, guid: def374f17422081469556c1cc4894d8a, type: 3}
+  - Clips:
+    - {fileID: 8300000, guid: f6e7da86fced3234d93cfafca4f1698a, type: 3}
+    - {fileID: 8300000, guid: a6416018c369a01428919c35ac2b000a, type: 3}
+    - {fileID: 8300000, guid: 54c92bb1be255ec4bab53e56b78e5e6c, type: 3}
+    - {fileID: 8300000, guid: 2c32898a885f32847bfc72bd42dffc9c, type: 3}

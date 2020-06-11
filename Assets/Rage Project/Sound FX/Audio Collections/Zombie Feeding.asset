@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d98550b45058d9546a8078acb2cdee9b, type: 3}
+  m_Name: Zombie Feeding
+  m_EditorClassIdentifier: 
+  _audioGroup: Zombies
+  _volume: 0.2
+  _spatialBlend: 1
+  _priority: 128
+  _audioClipBanks:
+  - Clips:
+    - {fileID: 8300000, guid: 8b16ef881078eef49adfb7a2dc295791, type: 3}
+    - {fileID: 8300000, guid: f959135cfe786ff4ea68e2c1e02d9caf, type: 3}
+    - {fileID: 8300000, guid: e786c9879883b7140b0991005c9b2da4, type: 3}
+    - {fileID: 8300000, guid: 1529318c1229ded499135589fc2e4e15, type: 3}
+    - {fileID: 8300000, guid: d576eb5b6b6e7ea48ae1c39a99d540e7, type: 3}
