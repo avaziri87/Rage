@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d98550b45058d9546a8078acb2cdee9b, type: 3}
+  m_Name: Gun Shots
+  m_EditorClassIdentifier: 
+  _audioGroup: Player
+  _volume: 0.5
+  _spatialBlend: 1
+  _priority: 128
+  _audioClipBanks:
+  - Clips:
+    - {fileID: 8300000, guid: 507317480bc0ef1409b4d177b2311eac, type: 3}
+    - {fileID: 8300000, guid: e7d7265553b6d7e4fa0eb9149de58c58, type: 3}
+    - {fileID: 8300000, guid: 24ddcf5d6d96580458b054c3b38650a3, type: 3}
+    - {fileID: 8300000, guid: 15a78057a2b6da24e93a38845fd25ff3, type: 3}
+    - {fileID: 8300000, guid: dbbee463c692d854390915eeaeb0102b, type: 3}
+    - {fileID: 8300000, guid: 6012abd49031381479142885492d5ee0, type: 3}

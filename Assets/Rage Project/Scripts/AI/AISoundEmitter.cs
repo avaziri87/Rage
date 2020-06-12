@@ -34,6 +34,8 @@ public class AISoundEmitter : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!_collider) return;
+
         _interpolator = Mathf.Clamp01(_interpolator + Time.deltaTime*_interpolateSpeed);
         _collider.radius = Mathf.Lerp(_srcRadius, _tgtRadius, _interpolator);
         if (_collider.radius < Mathf.Epsilon) _collider.enabled = false;
@@ -46,12 +48,11 @@ public class AISoundEmitter : MonoBehaviour
 
         _srcRadius = (instanteResize || newRadius > _collider.radius)? newRadius : _collider.radius;
         _tgtRadius = newRadius;
-        _interpolateSpeed = 0.0f;
+        _interpolator = 0.0f;
     }
 
-    private void Update()
-    {
-        SetRadius(2.0f);
-        if (Input.GetKeyDown(KeyCode.R)) SetRadius(15.0f);
-    }
+    //private void Update()
+    //{
+    //    if (Input.GetKeyDown(KeyCode.R)) SetRadius(15.0f);
+    //}
 }

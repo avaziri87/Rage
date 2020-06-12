@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public enum PlayerMoveStatus { NotMoving, Crouching, Walking, Running, NotGrounded, Landing }
+public enum PlayerMoveStatus { NotMoving, Crouching, Walking, Running, NotGrounded, Landing, Shooting }
 public enum CurveControlledBobCallbackType { Horizontal, Vertical}
 
 public delegate void CurvedControlledBobCallback();
@@ -99,16 +99,19 @@ public class CurveControlledBob
 public class FPSController : MonoBehaviour
 {
     [SerializeField] AudioCollection _footsteps = null;
-    [SerializeField] float _crouchAttenuation = 0.2f;
 
+    [SerializeField] float _crouchAttenuation   = 0.2f;
     [SerializeField] float _walkSpeed           = 2.0f;
     [SerializeField] float _runSpeed            = 4.0f;
     [SerializeField] float _jumpSeed            = 7.5f;
     [SerializeField] float _crouchedSpeed       = 1.0f;
+    [SerializeField] float _staminaDepletion    = 5.0f;
+    [SerializeField] float _staminaRecovery     = 10.0f;
     [SerializeField] float _stickToGroundForce  = 5.0f;
     [SerializeField] float _gravityMultiplier   = 2.5f;
     [SerializeField] float _runStepLengthen     = 0.75f;
     [SerializeField] GameObject _flashlight = null;
+    [SerializeField] bool _flashlightOnDefault  = true;
     [SerializeField] CurveControlledBob _headBob = new CurveControlledBob();
 
     [SerializeField] UnityStandardAssets.Characters.FirstPerson.MouseLook _mouseLook = new UnityStandardAssets.Characters.FirstPerson.MouseLook();
@@ -124,6 +127,8 @@ public class FPSController : MonoBehaviour
     float       _fallingTimer           = 0.0f;
     Vector3     _localSpaceCameraPos    = Vector3.zero;
     float       _controllerHeight       = 0.0f;
+    float       _stamina                = 100.0f;
+    bool        _freezeMovement         = false;
 
     CharacterController _characterController = null;
     PlayerMoveStatus _moveStatus = PlayerMoveStatus.NotMoving;
@@ -131,6 +136,8 @@ public class FPSController : MonoBehaviour
     public PlayerMoveStatus moveStatus              { get { return _moveStatus; } }
     public float walkSpeed                          { get { return _walkSpeed; } }
     public float runSpeed                           { get { return _runSpeed; } }
+    public float stamina                            { get { return _stamina; } }
+    public bool freezeMovement                      { get { return _freezeMovement; } set { _freezeMovement = value; } }
     public CharacterController characterController  { get { return _characterController; } }
 
     float _dragMultiplier        = 1.0f;
@@ -162,7 +169,7 @@ public class FPSController : MonoBehaviour
 
         if(_flashlight != null)
         {
-            _flashlight.SetActive(false);
+            _flashlight.SetActive(_flashlightOnDefault);
         }
     }
     private void Update()
@@ -217,6 +224,10 @@ public class FPSController : MonoBehaviour
         }
 
         _previouslyGrounded = _characterController.isGrounded;
+
+        if (_moveStatus == PlayerMoveStatus.Running)    _stamina = Mathf.Max(0.0f, _stamina - _staminaDepletion * Time.deltaTime);
+        else                                            _stamina = Mathf.Min(100.0f, _stamina + _staminaRecovery * Time.deltaTime);
+
         _dragMultiplier = Mathf.Min(_dragMultiplier + Time.deltaTime, _dragMultiplierLimit);
     }
     private void FixedUpdate()
@@ -227,7 +238,7 @@ public class FPSController : MonoBehaviour
         _isWalking = !Input.GetKey(KeyCode.LeftShift);
 
         //set the desired player speed to be either walking or running
-        float speed = _isCrounching? _crouchedSpeed: _isWalking ? _walkSpeed : _runSpeed;
+        float speed = _isCrounching ? _crouchedSpeed : _isWalking ? _walkSpeed : Mathf.Lerp(_walkSpeed, _runSpeed, _stamina/100.0f);
         _inputVector = new Vector2(horizontal, vertical);
 
         if (_inputVector.sqrMagnitude > 1) _inputVector.Normalize();
@@ -243,8 +254,8 @@ public class FPSController : MonoBehaviour
         }
 
         //scale movement by our current speed (walking value or running vlaue)
-        _moveDirection.x = desiredMove.x * speed * _dragMultiplier;
-        _moveDirection.z = desiredMove.z * speed * _dragMultiplier;
+        _moveDirection.x = !_freezeMovement ? desiredMove.x * speed * _dragMultiplier: 0.0f;
+        _moveDirection.z = !_freezeMovement ? desiredMove.z * speed * _dragMultiplier: 0.0f;
 
         //if grounded
         if(_characterController.isGrounded)

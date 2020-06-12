@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d98550b45058d9546a8078acb2cdee9b, type: 3}
+  m_Name: Generation Activation
+  m_EditorClassIdentifier: 
+  _audioGroup: Scene
+  _volume: 0.4
+  _spatialBlend: 1
+  _priority: 128
+  _audioClipBanks:
+  - Clips:
+    - {fileID: 8300000, guid: 5b8b6f55abc042740bf369e01edbb308, type: 3}
+  - Clips:
+    - {fileID: 8300000, guid: 66657d3558467f542abb532929624e02, type: 3}

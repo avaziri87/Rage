@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,8 +34,10 @@ public class GameSceneManager : MonoBehaviour
     }
 
     //private vairables
-    Dictionary<int, AIStateMachine> _stateMachines  = new Dictionary<int, AIStateMachine>();
-    Dictionary<int, PlayerInfo>     _playerInfo     = new Dictionary<int, PlayerInfo>();
+    Dictionary<int, AIStateMachine>     _stateMachines      = new Dictionary<int, AIStateMachine>();
+    Dictionary<int, PlayerInfo>         _playerInfo         = new Dictionary<int, PlayerInfo>();
+    Dictionary<int, InteractiveItem>    _interactiveItems   = new Dictionary<int, InteractiveItem>();
+    Dictionary<int, MaterialController> _materialControllers = new Dictionary<int, MaterialController>();
 
     public ParticleSystem bloodParticle { get { return _bloodPArticles; } }
     /*
@@ -96,5 +99,36 @@ public class GameSceneManager : MonoBehaviour
             return info;
         }
         return null;
+    }
+
+    public void RegisterInteractiveItem(int key, InteractiveItem script)
+    {
+        if(!_interactiveItems.ContainsKey(key))
+        {
+            _interactiveItems[key] = script;
+        }
+    }
+
+    public InteractiveItem GetInteractiveItem(int key)
+    {
+        InteractiveItem item = null;
+        _interactiveItems.TryGetValue(key, out item);
+        return item;
+    }
+
+    public void RegisterMaterialController(int key, MaterialController controller)
+    {
+        if (!_materialControllers.ContainsKey(key))
+        {
+            _materialControllers[key] = controller;
+        }
+    }
+
+    protected void OnDestroy()
+    {
+        foreach (KeyValuePair<int, MaterialController> controller in _materialControllers)
+        {
+            controller.Value.OnReset();
+        }
     }
 }

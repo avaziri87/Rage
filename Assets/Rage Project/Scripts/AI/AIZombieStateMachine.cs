@@ -42,6 +42,7 @@ public class AIZombieStateMachine : AIStateMachine
     [SerializeField]                            float               _reanimationBlendTime   = 0.5f;
     [SerializeField]                            float               _reanimationWaitTime    = 3.0f;
     [SerializeField]                            LayerMask           _geometryLayers         = 0;
+    [SerializeField]                            AudioCollection     _ragdollCollection      = null;
     #endregion
 
     //Private
@@ -52,6 +53,7 @@ public class AIZombieStateMachine : AIStateMachine
     int _attackType = 0;
     float _speed = 0.0f;
     float _isScreaming = 0.0f;
+    float _nextRagdollSound = 0.0f;
 
 
     //Ragdoll
@@ -196,11 +198,26 @@ public class AIZombieStateMachine : AIStateMachine
         }
 
         float hitStrength = force.magnitude;
+        float prevHealth = _health;
 
         if(_boneControlType == AIBoneControlType.Ragdoll)
         {
             if(bodyPart != null)
             {
+                if(Time.time > _nextRagdollSound && _ragdollCollection != null && prevHealth > 0)
+                {
+                    AudioClip clip = _ragdollCollection[0];
+                    if(clip)
+                    {
+                        _nextRagdollSound = Time.time + clip.length;
+                        AudioManager.instance.PlayOneShotSound(_ragdollCollection.audioGroup,
+                                                               clip,
+                                                               position,
+                                                               _ragdollCollection.volume,
+                                                               _ragdollCollection.spatialBlend,
+                                                               _ragdollCollection.priority);
+                    }
+                }
                 if (hitStrength > 1.0f)
                 {
                     bodyPart.AddForce(force, ForceMode.Impulse);
@@ -208,7 +225,7 @@ public class AIZombieStateMachine : AIStateMachine
 
                 if(bodyPart.CompareTag("Head"))
                 {
-                    _health = Mathf.Max(0, health - damage);
+                    _health = Mathf.Max(0, _health - damage);
                 }
                 else if(bodyPart.CompareTag("Upper Body"))
                 {
@@ -221,7 +238,7 @@ public class AIZombieStateMachine : AIStateMachine
 
                 UpdateAnimatorDamage();
 
-                if(health > 0)
+                if(_health > 0)
                 {
                     if (_reanimationCoroutine != null)
                     {
@@ -242,7 +259,7 @@ public class AIZombieStateMachine : AIStateMachine
         {
             if (bodyPart.CompareTag("Head"))
             {
-                _health = Mathf.Max(0, health - damage);
+                _health = Mathf.Max(0, _health - damage);
                 if (health == 0) shouldRagdoll = true;
             }
             else if (bodyPart.CompareTag("Upper Body"))
@@ -304,6 +321,21 @@ public class AIZombieStateMachine : AIStateMachine
             if (_collider) _collider.enabled = false;
 
             if (_layeredAudioSource != null) _layeredAudioSource.Mute(true);
+
+            if (Time.time > _nextRagdollSound && _ragdollCollection != null && _health > 0)
+            {
+                AudioClip clip = _ragdollCollection[0];
+                if (clip)
+                {
+                    _nextRagdollSound = Time.time + clip.length;
+                    AudioManager.instance.PlayOneShotSound(_ragdollCollection.audioGroup,
+                                                           clip,
+                                                           position,
+                                                           _ragdollCollection.volume,
+                                                           _ragdollCollection.spatialBlend,
+                                                           _ragdollCollection.priority);
+                }
+            }
 
             inMeleeRange = false;
 
