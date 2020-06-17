@@ -8,6 +8,10 @@ TagManager:
   - AI Visual
   - AI Food
   - Flash Light
+  - Melee Zone
+  - Lower Body
+  - Upper Body
+  - Head
   layers:
   - Default
   - TransparentFX
@@ -24,7 +28,7 @@ TagManager:
   - Visual Aggravator
   - Audio Aggravator
   - AI Body Part
-  - 
+  - Interactive
   - 
   - 
   - 

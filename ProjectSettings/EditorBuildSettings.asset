@@ -4,5 +4,14 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Rage Project/Scenes/Bootstraper.unity
+    guid: ff110be1e99e87845ba9814d8bec41cd
+  - enabled: 1
+    path: Assets/Rage Project/Scenes/Main Menu.unity
+    guid: 28f05c9d296b83842a507481ed2345d6
+  - enabled: 1
+    path: Assets/Rage Project/Scenes/Creeper_01.unity
+    guid: 6e225ed7cda00d84e81df7405fc400e8
   m_configObjects: {}
